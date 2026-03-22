@@ -38,12 +38,34 @@ def eprint(*args: Any) -> None:
     print(*args, file=sys.stderr)
 
 
+class ConfigurationError(RuntimeError):
+    pass
+
+
 class GoogleDriveClient:
     def __init__(self, secrets_path: Path, token_path: Path) -> None:
         self.secrets_path = secrets_path
         self.token_path = token_path
-        self.secrets = self._load_json(secrets_path, required=True)
+        self.secrets = self._load_client_secrets(secrets_path)
         self.tokens = self._load_json(token_path, required=False) or {}
+
+    def _load_client_secrets(self, path: Path) -> Dict[str, Any]:
+        if not path.exists():
+            raise ConfigurationError(
+                "Missing Google OAuth client secrets.\n"
+                f"Expected a Desktop app client JSON at: {path}\n"
+                "Create a Google Cloud project, enable the Google Drive API, create an OAuth "
+                "client ID for a Desktop app, download the JSON file, and save it there.\n"
+                "You can also rerun this command with --client-secrets /path/to/client_secret.json."
+            )
+        data = self._load_json(path, required=True)
+        installed = data.get("installed") if isinstance(data, dict) else None
+        if not isinstance(installed, dict) or "client_id" not in installed or "client_secret" not in installed:
+            raise ConfigurationError(
+                "Invalid Google OAuth client secrets JSON.\n"
+                f"Expected a Desktop app credentials file with an 'installed' section at: {path}"
+            )
+        return data
 
     def _load_json(self, path: Path, required: bool) -> Optional[Dict[str, Any]]:
         if path.exists():
