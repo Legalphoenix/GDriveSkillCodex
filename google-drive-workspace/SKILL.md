@@ -9,13 +9,14 @@ Use this skill to work with Google Drive content through the Google Drive API in
 
 ## Quick start
 
-1. Confirm that `~/.codex/google-drive/client_secret.json` exists, or pass `--client-secrets` with a Desktop-app OAuth client secret file.
-2. Run `python google-drive-workspace/scripts/gdrive_workspace.py auth` to print the Google consent URL.
-3. Open the URL in any browser where the correct Google account is signed in.
-4. After approval, copy the `code=` value from the redirect URL and rerun `auth --code '<value>'`.
-5. Run `whoami` to verify the token belongs to the expected Google account.
-6. Run `tree` or `ls` on a folder URL or folder ID to inspect Drive contents.
-7. Run `export` on any target file URL or file ID to download the file or export a Google-native document.
+1. Set `GDRIVE_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/google-drive-workspace"`.
+2. Confirm that `~/.codex/google-drive/client_secret.json` exists, or pass `--client-secrets` with a Desktop-app OAuth client secret file.
+3. Run `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --print-url` to print the Google consent URL.
+4. Open the URL in any browser where the correct Google account is signed in.
+5. After approval, copy the `code=` value from the redirect URL and rerun `auth --code '<value>'`.
+6. Run `whoami` to verify the token belongs to the expected Google account.
+7. Run `tree` or `ls` on a folder URL or folder ID to inspect Drive contents.
+8. Run `export` on any target file URL or file ID to download the file or export a Google-native document.
 
 ## Workflow
 
@@ -43,12 +44,13 @@ Use this skill to work with Google Drive content through the Google Drive API in
 ## Commands
 
 ```bash
-python google-drive-workspace/scripts/gdrive_workspace.py auth
-python google-drive-workspace/scripts/gdrive_workspace.py auth --code '<copied-auth-code>'
-python google-drive-workspace/scripts/gdrive_workspace.py whoami
-python google-drive-workspace/scripts/gdrive_workspace.py tree '<folder-id-or-url>'
-python google-drive-workspace/scripts/gdrive_workspace.py ls '<folder-id-or-url>'
-python google-drive-workspace/scripts/gdrive_workspace.py export '<file-id-or-url>' --format md --output /tmp/doc.md
+GDRIVE_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/google-drive-workspace"
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --print-url
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --code '<copied-auth-code>'
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" whoami
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" tree '<folder-id-or-url>'
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" ls '<folder-id-or-url>'
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" export '<file-id-or-url>' --format md --output /tmp/doc.md
 ```
 
 ## Resources

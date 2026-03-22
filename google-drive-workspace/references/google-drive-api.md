@@ -8,7 +8,8 @@ Use this reference when the task needs exact API behavior or export format remin
 2. Enable the **Google Drive API**.
 3. Configure an **OAuth client ID** for a Desktop app.
 4. Download the OAuth client secrets JSON and place it at `~/.codex/google-drive/client_secret.json`, or pass a custom path with `--client-secrets`.
-5. Run `scripts/gdrive_workspace.py auth` to print the consent URL, open it in a browser, grant read-only Drive access, and rerun with `--code` using the code from the redirect URL.
+5. Set `GDRIVE_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/google-drive-workspace"`.
+6. Run `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --print-url` to print the consent URL, open it in a browser, grant read-only Drive access, and rerun with `--code` using the code from the redirect URL.
 
 ## Important constraints
 
@@ -36,11 +37,12 @@ Use this reference when the task needs exact API behavior or export format remin
 ## Useful commands
 
 ```bash
-python google-drive-workspace/scripts/gdrive_workspace.py auth
-python google-drive-workspace/scripts/gdrive_workspace.py auth --code '<copied-auth-code>'
-python google-drive-workspace/scripts/gdrive_workspace.py whoami
-python google-drive-workspace/scripts/gdrive_workspace.py tree 'https://drive.google.com/drive/u/0/folders/163sVFTefcAOznEYacdLulGfmQgL3rYUu'
-python google-drive-workspace/scripts/gdrive_workspace.py export '<file-id-or-url>' --format pdf
+GDRIVE_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/google-drive-workspace"
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --print-url
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --code '<copied-auth-code>'
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" whoami
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" tree 'https://drive.google.com/drive/u/0/folders/163sVFTefcAOznEYacdLulGfmQgL3rYUu'
+python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" export '<file-id-or-url>' --format pdf
 ```
 
 ## Workflow for the user's company folder
