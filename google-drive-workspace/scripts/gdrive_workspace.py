@@ -6,6 +6,7 @@ import os
 import sys
 import textwrap
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -39,6 +40,10 @@ def eprint(*args: Any) -> None:
 
 
 class ConfigurationError(RuntimeError):
+    pass
+
+
+class ReauthenticationRequiredError(RuntimeError):
     pass
 
 
@@ -116,7 +121,18 @@ class GoogleDriveClient:
             "refresh_token": refresh_token,
             "grant_type": "refresh_token",
         }
-        token_data = self._post_form(TOKEN_URL, payload)
+        try:
+            token_data = self._post_form(TOKEN_URL, payload)
+        except ReauthenticationRequiredError as exc:
+            raise ReauthenticationRequiredError(
+                str(exc)
+                + "\nRerun:\n"
+                + "  python3 "
+                + f"\"{Path(__file__)}\" auth --print-url\n"
+                + "Complete consent in the browser, then rerun:\n"
+                + "  python3 "
+                + f"\"{Path(__file__)}\" auth --code '<copied-auth-code>'"
+            ) from exc
         self.tokens["access_token"] = token_data["access_token"]
         self.tokens["expires_in"] = token_data.get("expires_in", 3600)
         self.tokens["expires_at"] = int(time.time()) + int(token_data.get("expires_in", 3600))
@@ -158,8 +174,24 @@ class GoogleDriveClient:
         body = urllib.parse.urlencode(payload).encode()
         req = urllib.request.Request(url, data=body, method="POST")
         req.add_header("Content-Type", "application/x-www-form-urlencoded")
-        with urllib.request.urlopen(req) as resp:
-            return json.loads(resp.read())
+        try:
+            with urllib.request.urlopen(req) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as exc:
+            raw_body = exc.read().decode("utf-8", errors="replace")
+            try:
+                error_data = json.loads(raw_body)
+            except json.JSONDecodeError:
+                error_data = {}
+            if (
+                payload.get("grant_type") == "refresh_token"
+                and error_data.get("error") == "invalid_grant"
+            ):
+                raise ReauthenticationRequiredError(
+                    "The saved Google refresh token is no longer valid. "
+                    "This commonly happens when the OAuth app stays in Testing and the refresh token expires."
+                ) from exc
+            raise RuntimeError(raw_body or f"HTTP {exc.code} calling {url}") from exc
 
 
 def extract_id(value: str) -> str:
