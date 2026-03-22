@@ -10,18 +10,21 @@ Use this skill to work with Google Drive content through the Google Drive API in
 ## Quick start
 
 1. Set `GDRIVE_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/google-drive-workspace"`.
-2. Confirm that `~/.codex/google-drive/client_secret.json` exists, or pass `--client-secrets` with a Desktop-app OAuth client secret file.
-3. Run `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --print-url` to print the Google consent URL.
-4. Open the URL in any browser where the correct Google account is signed in.
-5. After approval, copy the `code=` value from the redirect URL and rerun `auth --code '<value>'`.
-6. Run `whoami` to verify the token belongs to the expected Google account.
-7. Run `tree` or `ls` on a folder URL or folder ID to inspect Drive contents.
-8. Run `export` on any target file URL or file ID to download the file or export a Google-native document.
+2. If `~/.codex/google-drive/token.json` already exists, run `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" whoami` first. If it succeeds, reuse the existing token and skip the browser auth flow.
+3. Confirm that `~/.codex/google-drive/client_secret.json` exists, or pass `--client-secrets` with a Desktop-app OAuth client secret file.
+4. Run `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --print-url` only when the token is missing, revoked, tied to the wrong Google account, or `whoami` fails.
+5. Open the URL in any browser where the correct Google account is signed in.
+6. After approval, copy the `code=` value from the redirect URL and rerun `auth --code '<value>'`.
+7. Run `whoami` to verify the token belongs to the expected Google account.
+8. Run `tree` or `ls` on a folder URL or folder ID to inspect Drive contents.
+9. Run `export` on any target file URL or file ID to download the file or export a Google-native document.
 
 ## Workflow
 
 ### 1. Authenticate safely
 
+- Start with `whoami` to verify whether a saved token already works before asking the user to repeat OAuth.
+- Reuse existing `client_secret.json` and `token.json` across future agents. Do not repeat browser auth if `whoami` succeeds.
 - Prefer the bundled script over ad hoc OAuth code.
 - Keep OAuth scope read-only unless the user explicitly asks for write access.
 - Treat saved tokens as secrets. Do not print them into chat.

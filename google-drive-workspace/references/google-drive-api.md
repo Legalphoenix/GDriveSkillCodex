@@ -6,10 +6,13 @@ Use this reference when the task needs exact API behavior or export format remin
 
 1. Create a Google Cloud project.
 2. Enable the **Google Drive API**.
-3. Configure an **OAuth client ID** for a Desktop app.
-4. Download the OAuth client secrets JSON and place it at `~/.codex/google-drive/client_secret.json`, or pass a custom path with `--client-secrets`.
-5. Set `GDRIVE_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/google-drive-workspace"`.
-6. Run `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --print-url` to print the consent URL, open it in a browser, grant read-only Drive access, and rerun with `--code` using the code from the redirect URL.
+3. Configure the Google Auth Platform branding and consent screen. For personal Gmail accounts, use **External** because **Internal** is only available for Google Workspace organizations.
+4. While the app is in **Testing**, add the intended Google account as a **test user** under Audience.
+5. Create an **OAuth client ID** for a **Desktop app** and download the JSON credentials file.
+6. Place that file at `~/.codex/google-drive/client_secret.json`, or pass a custom path with `--client-secrets`.
+7. Set `GDRIVE_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/google-drive-workspace"`.
+8. If `~/.codex/google-drive/token.json` already exists, run `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" whoami` first and reuse the existing token when it succeeds.
+9. Run `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --print-url` only when the token is missing, revoked, or tied to the wrong Google account. Open the URL in a browser, grant read-only Drive access, and rerun with `--code` using the code from the redirect URL.
 
 ## Important constraints
 
@@ -17,6 +20,13 @@ Use this reference when the task needs exact API behavior or export format remin
 - Prefer `https://www.googleapis.com/auth/drive.readonly` unless the task truly requires write access.
 - Shared-drive access requires `supportsAllDrives=true` and `includeItemsFromAllDrives=true` on list or get requests.
 - Folder listing query pattern: `'<folder_id>' in parents and trashed = false`.
+- Reuse `token.json` across future agents. Do not repeat browser auth when `whoami` succeeds.
+
+## Common auth failures
+
+- `access blocked` or a consent-screen error while the app is in Testing: add the Google account as a test user in Google Cloud Console.
+- A redirect to `http://localhost/...` that fails to load after approval: this is expected. Copy the `code=` value from the browser address bar.
+- A valid `client_id` pasted into chat without the JSON file on disk: this is not enough. The script needs the downloaded Desktop app OAuth JSON file.
 
 ## MIME types and export choices
 
