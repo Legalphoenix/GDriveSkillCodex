@@ -21,12 +21,15 @@ Use this reference when the task needs exact API behavior or export format remin
 - Shared-drive access requires `supportsAllDrives=true` and `includeItemsFromAllDrives=true` on list or get requests.
 - Folder listing query pattern: `'<folder_id>' in parents and trashed = false`.
 - Reuse `token.json` across future agents. Do not repeat browser auth when `whoami` succeeds.
+- The access token is short-lived; the script refreshes it automatically when the saved `refresh_token` is still valid.
+- If `whoami` or another API call fails because the token can no longer be refreshed, rerun `auth --print-url`, complete browser consent, and rerun `auth --code '<copied-auth-code>'` to write a fresh `token.json`.
 
 ## Common auth failures
 
 - `access blocked` or a consent-screen error while the app is in Testing: add the Google account as a test user in Google Cloud Console.
 - A redirect to `http://localhost/...` that fails to load after approval: this is expected. Copy the `code=` value from the browser address bar.
 - A valid `client_id` pasted into chat without the JSON file on disk: this is not enough. The script needs the downloaded Desktop app OAuth JSON file.
+- If the app remains in **Testing**, Google may require periodic re-auth because refresh tokens can expire for testing apps.
 
 ## MIME types and export choices
 

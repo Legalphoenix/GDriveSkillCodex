@@ -25,6 +25,12 @@ Use this skill to work with Google Drive content through the Google Drive API in
 
 - Start with `whoami` to verify whether a saved token already works before asking the user to repeat OAuth.
 - Reuse existing `client_secret.json` and `token.json` across future agents. Do not repeat browser auth if `whoami` succeeds.
+- Expect the saved access token to expire quickly. The script refreshes it automatically when a valid `refresh_token` is present.
+- If `whoami` fails because the token is expired, revoked, or no longer refreshable, rerun:
+  `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --print-url`
+  then complete consent in the browser and rerun:
+  `python3 "$GDRIVE_SKILL_DIR/scripts/gdrive_workspace.py" auth --code '<copied-auth-code>'`
+- If the Google OAuth app is still in **Testing**, expect refresh tokens to expire and require re-auth periodically.
 - Prefer the bundled script over ad hoc OAuth code.
 - Keep OAuth scope read-only unless the user explicitly asks for write access.
 - Treat saved tokens as secrets. Do not print them into chat.
