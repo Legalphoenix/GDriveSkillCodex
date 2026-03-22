@@ -1,0 +1,5 @@
+version: 1
+interface:
+  display_name: Google Drive Workspace
+  short_description: Browse Drive and export workspace files.
+  default_prompt: Use Google Drive Workspace to authenticate with Google Drive, inspect folder trees, and export Google Docs, Sheets, Slides, PDFs, and other files when a user needs content from Drive.
